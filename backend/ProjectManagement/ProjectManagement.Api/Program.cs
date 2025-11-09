@@ -1,4 +1,5 @@
 using Microsoft.OpenApi.Models;
+using ProjectManagement.Infrastructure.Configuration;
 using Serilog;
 
 namespace ProjectManagementAPI
@@ -9,10 +10,14 @@ namespace ProjectManagementAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            var logSettings = builder.Configuration.GetSection(LoggingSettings.Section).Get<LoggingSettings>();
+
+            builder.Services.AddOptions<DatabaseSettings>() .Bind(builder.Configuration.GetSection(DatabaseSettings.Section)).ValidateOnStart();
+                                                                                                                              
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Information()
                 .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
-                .WriteTo.File(builder.Configuration["LogSettings:LogFilePath"], rollingInterval: RollingInterval.Day)
+                .WriteTo.File(logSettings.LogFilePath, rollingInterval: RollingInterval.Day)
                 .ReadFrom.Configuration(builder.Configuration)
                 .CreateLogger();
 
