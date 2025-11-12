@@ -39,6 +39,18 @@ namespace ProjectManagementAPI
                 });
             });
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend", policy =>
+                {
+                    policy
+                        .WithOrigins("http://localhost:3000")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials(); // IMPORTANT for cookie-based auth
+                });
+            });
+
 
             var app = builder.Build();
 
@@ -48,6 +60,8 @@ namespace ProjectManagementAPI
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseCors("AllowFrontend");
 
             app.UseHttpsRedirection();
 
